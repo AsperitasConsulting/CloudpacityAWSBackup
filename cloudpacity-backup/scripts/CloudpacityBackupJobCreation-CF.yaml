@@ -1,0 +1,112 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Cloudpacity backup job creation and deployment script
+#
+# Parameters section
+#
+Parameters:
+#    
+  S3CodeBucket:
+    Type: String
+    Description: The name of the bucket where the code resides. It needs to exist!
+    Default: ''
+
+  S3CodeKey:
+    Type: String
+    Description: The key for the code jar file in the S3 bucket
+    Default: 'cloudpacity-backup-0.12.5.jar'
+ 
+  BackupLambdaFunctionName:
+    Type: String
+    Description: The name of the lambda function for backing up EC2 instances
+ 
+    
+  BackupTriggerLambdaFunctionName:
+    Type: String
+    Description: The name of the EC2 backup lambda function triggered recursively for long running jobs
+    Default: 'CloudpacityEC2BackupTrigger' 
+    
+  BackupRoleName:
+    Type: String
+    Description: The name IAM role for the backup Lambda functions
+    Default: 'CP_EC2Backup_Role'  
+    
+  BackupFilterTagName:
+    Type: String
+    Description: The name of the tag that you will use as a filter to identify instances to backup
+    Default: 'Name'     
+    
+  BackupFilterTagValue:
+    Type: String
+    Description: The value of the tag that you will use as a filter to identify instances to backup
+    
+  NotificationEmail:
+    Type: String
+    Description: The email address for notifications
+  
+  InstanceTagsToInclude:
+    Type: String
+    Description: A common delimitted list of instance tags that should be copied to the AMI and snapshots  
+    
+  Schedule:
+    Type: String
+    Description: The schedule for the function. Format rate(x minutes), rate(x hours), rate(x days), cron(<mins> <hours> <day of month> <month> <day of week> <year>) e.g. cron(0 12 ? * SUN-SAT *) represents everyday at noon
+    Default: 'cron(0 1 ? * SUN-SAT *)'   
+    
+#######################333
+Resources: 
+#
+  CloudpacityBackupSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Ref "BackupLambdaFunctionName"
+      Subscription:
+        -
+          Endpoint: !Ref NotificationEmail
+          Protocol: email
+#
+  CreateEC2BackupFunction:
+    Type: "AWS::Lambda::Function"
+    DependsOn: 
+      - CloudpacityBackupSNSTopic
+    Properties:
+      FunctionName: !Ref "BackupLambdaFunctionName"
+      Description: "EC2 Backup to AMI/snapshots"
+      Handler: "com.cloudpacity.aws.backup.lambda.EC2BackupLambda::handleRequest"
+      Role: !Join [ '', ['arn:aws:iam::',  !Ref "AWS::AccountId", ':role/', !Ref 'BackupRoleName'] ]
+      Code:
+        S3Bucket: !Ref S3CodeBucket
+        S3Key: !Ref S3CodeKey
+      Runtime: "java8"
+      MemorySize: "1024"
+      Timeout: "300"
+      Environment:
+        Variables:
+          "Filter1TagName": !Ref "BackupFilterTagName"
+          "Filter1TagValue": !Ref "BackupFilterTagValue"
+          "SnsArn": !Ref CloudpacityBackupSNSTopic
+          "InstanceTagsToInclude": !Ref "InstanceTagsToInclude"
+#
+  ScheduledRule: 
+    Type: "AWS::Events::Rule"
+    Properties: 
+      Description: "ScheduledRule"
+      ScheduleExpression: !Ref "Schedule"
+      State: "ENABLED"
+      Targets: 
+        - 
+          Arn: 
+            Fn::GetAtt: 
+              - "CreateEC2BackupFunction"
+              - "Arn"
+          Id: "BackupTargetFunction"
+  PermissionForEventsToInvokeLambda: 
+    Type: "AWS::Lambda::Permission"
+    Properties: 
+      FunctionName: 
+        Ref: "CreateEC2BackupFunction"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: 
+        Fn::GetAtt: 
+          - "ScheduledRule"
+          - "Arn"

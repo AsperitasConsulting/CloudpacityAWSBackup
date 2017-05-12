@@ -1,0 +1,202 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Cloudpacity environment creation and deployment script
+#
+# Parameters section
+#
+Parameters:
+#
+  S3CodeBucket:
+    Type: String
+    Description: The name of the bucket where the code resides. It needs to exist!
+    Default: ''
+
+  S3CodeKey:
+    Type: String
+    Description: The key for the code jar file in the S3 bucket
+    Default: 'cloudpacity-backup-0.12.5.jar'
+ 
+  BackupLambdaFunctionName:
+    Type: String
+    Description: The name of the lambda function for backing up EC2 instances
+    Default: 'CloudpacityEC2Backup'   
+    
+  BackupTriggerLambdaFunctionName:
+    Type: String
+    Description: The name of the EC2 backup lambda function triggered recursively for long running jobs
+    Default: 'CloudpacityEC2BackupTrigger' 
+    
+  BackupRoleName:
+    Type: String
+    Description: The name IAM role for the backup Lambda functions
+    Default: 'CP_EC2Backup_Role'  
+    
+  BackupFilterTagName:
+    Type: String
+    Description: The name of the tag that you will use as a filter to identify instances to backup
+    Default: 'Name'     
+    
+  BackupFilterTagValue:
+    Type: String
+    Description: The value of the tag that you will use as a filter to identify instances to backup
+    
+  NotificationEmail:
+    Type: String
+    Description: The email address for notifications
+  
+  InstanceTagsToInclude:
+    Type: String
+    Description: A common delimitted list of instance tags that should be copied to the AMI and snapshots
+    
+Resources: 
+# Create Cloudpacity EC2 Backup Dynamodb table
+  CreateCloudpacityEC2BackupTable: 
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: "CloudpacityEC2Backup"
+      AttributeDefinitions: 
+        - 
+          AttributeName: "Id"
+          AttributeType: "S"
+        - 
+          AttributeName: "RequestStartTime"
+          AttributeType: "S"
+      KeySchema: 
+        - 
+          AttributeName: "Id"
+          KeyType: "HASH"
+        -
+          AttributeName: "RequestStartTime"
+          KeyType: "RANGE"
+      ProvisionedThroughput: 
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+#  Not supported yet!
+#      TimeToLiveDescription:
+#        AttributeName: "purgeTimestamp"
+#        TimeToLiveStatus: "ENABLED"
+#
+  CPBackupRole:
+    Type: "AWS::IAM::Role"
+    DependsOn: CreateCloudpacityEC2BackupTable
+    Properties:
+        RoleName: !Ref "BackupRoleName"
+        AssumeRolePolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+                -
+                 Effect: Allow
+                 Principal: 
+                  Service: 
+                    - "lambda.amazonaws.com"
+                 Action: sts:AssumeRole
+        ManagedPolicyArns:
+            - arn:aws:iam::aws:policy/ReadOnlyAccess
+            - arn:aws:iam::aws:policy/AWSLambdaInvocation-DynamoDB
+            - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+        Path: "/"
+#
+  CPBackupRolePolicies:
+    Type: AWS::IAM::Policy
+    DependsOn: CPBackupRole
+    Properties:
+      PolicyName: root
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - 
+            Effect: Allow
+            Action: 
+              - "lambda:InvokeFunction"
+              - "lambda:InvokeAsync"
+            Resource: !Join [ '', ['arn:aws:lambda::',  !Ref "AWS::AccountId", ':function:', !Ref "BackupLambdaFunctionName"] ]
+          - 
+            Effect: Allow
+            Action: 
+              - "dynamodb:DescribeStream"
+              - "dynamodb:GetRecords"
+              - "dynamodb:GetShardIterator"
+              - "dynamodb:ListStreams"
+            Resource: !Join [ '', ['arn:aws:dynamodb::',  !Ref "AWS::AccountId", ':table/CloudpacityEC2Backup/stream/*'] ]
+          - 
+            Effect: Allow
+            Action: 
+              - "logs:CreateLogGroup"
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+              - "ec2:StopInstances"
+              - "ec2:StartInstances"
+              - "ec2:CopySnapshot"
+              - "ec2:DeleteSnapshot"
+              - "ec2:CreateImage"
+              - "ec2:DeregisterImage"
+              - "ec2:CreateSnapshot"
+              - "ec2:CreateTags"
+              - "s3:GetObject"
+              - "s3:PutObject"
+              - "sns:Publish"
+            Resource: "*"
+      Roles:
+      - Ref: CPBackupRole
+#
+  CloudpacityBackupSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Ref "BackupLambdaFunctionName"
+      Subscription:
+        -
+          Endpoint: !Ref NotificationEmail
+          Protocol: email
+#
+  CreateEC2BackupFunction:
+    Type: "AWS::Lambda::Function"
+    DependsOn: 
+      - CPBackupRole
+      - CloudpacityBackupSNSTopic
+    Properties:
+      FunctionName: !Ref "BackupLambdaFunctionName"
+      Description: "EC2 Backup to AMI/snapshots"
+      Handler: "com.cloudpacity.aws.backup.lambda.EC2BackupLambda::handleRequest"
+      Role: !Join [ '', ['arn:aws:iam::',  !Ref "AWS::AccountId", ':role/', !Ref 'BackupRoleName'] ]
+      Code:
+        S3Bucket: !Ref S3CodeBucket
+        S3Key: !Ref S3CodeKey
+      Runtime: "java8"
+      MemorySize: "1024"
+      Timeout: "300"
+      Environment:
+        Variables:
+          "Filter1TagName": !Ref "BackupFilterTagName"
+          "Filter1TagValue": !Ref "BackupFilterTagValue"
+          "SnsArn": !Ref CloudpacityBackupSNSTopic
+          "InstanceTagsToInclude": !Ref "InstanceTagsToInclude"
+
+#
+  CreateEC2BackupDynamoDbTriggerFunction:
+    Type: "AWS::Lambda::Function"
+    DependsOn: CPBackupRole
+    Properties:
+      FunctionName: !Ref "BackupTriggerLambdaFunctionName"
+      Description: "EC2 Backup to AMI/snapshots"
+      Handler: "com.cloudpacity.aws.backup.lambda.EC2BackupLambda::handleDynamoRequest"
+      Role: !Join [ '', ['arn:aws:iam::',  !Ref "AWS::AccountId", ':role/', !Ref 'BackupRoleName'] ]
+      Code:
+        S3Bucket: !Ref S3CodeBucket
+        S3Key: !Ref S3CodeKey
+      Runtime: "java8"
+      MemorySize: "1024"
+      Timeout: "300"
+# 
+  CreateEC2BackupDynamoDbTriggerMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    DependsOn: 
+      - CreateEC2BackupDynamoDbTriggerFunction
+      - CreateCloudpacityEC2BackupTable
+    Properties:
+      BatchSize: 1
+      EventSourceArn: !GetAtt CreateCloudpacityEC2BackupTable.StreamArn
+      FunctionName:  !GetAtt CreateEC2BackupDynamoDbTriggerFunction.Arn
+      StartingPosition: TRIM_HORIZON
+      Enabled: True
+
