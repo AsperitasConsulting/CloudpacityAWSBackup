@@ -1,0 +1,59 @@
+Cloudpacity Backup Documentation
+
+
+Default values
+    DEFAULT_ACTION_PAUSE_SECS = 30;
+    DEFAULT_MAX_RECURSIVE_CALLS = 40;
+    DEFAULT_MAX_RUN_MINUTES = 20;
+    DEFAULT_DB_RETENTION_DAYS = 14;	
+    DEFAULT_TIME_ZONE = "America/Chicago";
+    DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss z";
+	
+Default Tags	
+    DEFAULT_AVAILABLE_DAY_TAG = "AvailableDay";
+    DEFAULT_AVAILABLE_BEGIN_TIME_TAG = "AvailableBeginTime";
+    DEFAULT_AVAILABLE_END_TIME_TAG = "AvailableEndTime";
+    DEFAULT_INSTANCE_DEPENDENCY_TAG = "InstanceDependencies";
+    DEFAULT_CREATION_TIMESTAMP_TAG = "CreationTimestamp";
+    DEFAULT_INSTANCE_TAGS_TO_INCLUDE_TAG = "InstanceTagsToInclude";
+    DEFAULT_INSTANCE_ID_TAG = "InstanceId";
+    DEFAULT_DEVICE_TAG = "Device";
+    DEFAULT_IMAGE_ID_TAG = "ImageId";
+    DEFAULT_BACKUP_STRATEGY_TAG = "BackupStrategy";
+		BACKUP_STRATEGY_AMI_CONST = "AMI";
+		BACKUP_STRATEGY_AMI_NO_REBOOT_CONST = "AMINoReboot";    
+		BACKUP_STRATEGY_SNAPSHOT_CONST = "Snapshot";
+		BACKUP_STRATEGY_SNAPSHOT_NO_REBOOT_CONST = "SnapshotNoReboot";	
+    DEFAULT_NAME_TAG = "Name";
+    DEFAULT_RETAIN_DAYS_TAG = "BackupRetentionDays";
+
+Environment variables
+	ENV_VAR_SNS_ARN = "SnsArn";
+    ENV_VAR_ACTION_PAUSE_SECS = "PauseSecs";
+    ENV_VAR_MAX_RECURSIVE_CALLS = "MaxRecursiveCalls";
+    ENV_VAR_MAX_RUN_MINUTES = "MaxRunMinutes";
+    ENV_VAR_TIME_ZONE = "TimeZone";
+    ENV_VAR_FILTER1_TAG_NAME = "Filter1TagName";
+    ENV_VAR_FILTER1_TAG_VALUE = "Filter1TagValue";
+    ENV_VAR_FILTER2_TAG_NAME = "Filter2TagName";
+    ENV_VAR_FILTER2_TAG_VALUE = "Filter2TagValue";
+    ENV_VAR_FILTER3_TAG_NAME = "Filter3TagName";
+    ENV_VAR_FILTER3_TAG_VALUE = "Filter3TagValue";
+    ENV_VAR_FILTER4_TAG_NAME = "Filter4TagName";
+    ENV_VAR_FILTER4_TAG_VALUE = "Filter4TagValue";
+	
+Environment variables to override default tags
+	ENV_VAR_OVERRIDE_NAME_TAG = "NameTag";
+	ENV_VAR_OVERRIDE_BACKUP_STRATEGY_TAG = "BackupStrategyTag";  
+	ENV_VAR_RETAIN_DAYS_TAG = "BackupRetentionDaysTag";	
+    ENV_VAR_OVERRIDE_AVAILABLE_DAY_TAG = "AvailableDayTag";
+    ENV_VAR_OVERRIDE_AVAILABLE_BEGIN_TIME_TAG = "AvailableBeginTimeTag";
+    ENV_VAR_OVERRIDE_AVAILABLE_END_TIME_TAG = "AvailableEndTimeTag";
+    ENV_VAR_OVERRIDE_INSTANCE_DEPENDENCY_TAG = "InstanceDepdenciesTag";
+    ENV_VAR_OVERRIDE_TIMESTAMP_TAG = "TimestampTag";
+    ENV_VAR_OVERRIDE_INSTANCE_ID_TAG = "InstanceIdTag";
+    ENV_VAR_OVERRIDE_DEVICE_TAG = "DeviceTag";
+    ENV_VAR_OVERRIDE_IMAGE_ID_TAG = "ImageIdTag";
+    ENV_VAR_OVERRIDE_DB_RETENTION_DAYS = "DBRetentionDays";	
+
+

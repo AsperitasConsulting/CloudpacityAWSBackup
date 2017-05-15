@@ -4,6 +4,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -106,11 +107,23 @@ public class AWSImageEntity extends AWSObjectEntity
 			
 			if (instance != null && StringUtils.isNotEmpty(instance.getInstanceId())) {
 				
+				boolean noInstanceReboot = false;
 				String instanceName = AWSInstanceEntity.getTagValueFromList(this.env.getNameTag(), instance.getTags(),"");
+				String backupStrategy = AWSInstanceEntity.getTagValueFromList(backupStrategyTag, instance.getTags(),"");
 				
+				if (StringUtils.isEmpty(backupStrategy)) {
+					logger.log("Error: Instance '" + instanceName + "' has not backup strategy tag '" + backupStrategyTag + "'");
+				}
+				// identify if a reboot is desired
+				else if (backupStrategy.equalsIgnoreCase(AWSInstanceEntity.BACKUP_STRATEGY_AMI_NO_REBOOT_CONST) ||
+						 backupStrategy.equalsIgnoreCase(AWSInstanceEntity.BACKUP_STRATEGY_SNAPSHOT_NO_REBOOT_CONST)) {
+					noInstanceReboot = true;
+				}
+					
 				if (instanceEntity.amiBackup(instance, backupStrategyTag)) {
-					CreateImageResult createImageResult = createImage(instanceList, tagsToInclude, instance
-																	  , amiFormattedCurrentDatetime, formattedCurrentDatetime);
+					
+					CreateImageResult createImageResult = createImage(instanceList, tagsToInclude, instance, amiFormattedCurrentDatetime
+							                                          , formattedCurrentDatetime, noInstanceReboot);
 					
 					imageIdList.add(createImageResult.getImageId());
 					imageMap.put(createImageResult.getImageId(), instance);
@@ -144,9 +157,16 @@ public class AWSImageEntity extends AWSObjectEntity
 		return imageIdList;
 	}
 
-
 	public CreateImageResult createImage(List<Instance> instanceList, List<String> tagsToInclude, Instance instance, String amiFormattedCurrentDatetime
 			, String formattedCurrentDatetime) {
+		
+		boolean noInstanceReboot = false;
+		return createImage(instanceList, tagsToInclude, instance, amiFormattedCurrentDatetime, formattedCurrentDatetime, noInstanceReboot);
+		
+	}
+
+	public CreateImageResult createImage(List<Instance> instanceList, List<String> tagsToInclude, Instance instance, String amiFormattedCurrentDatetime
+			, String formattedCurrentDatetime, boolean noInstanceReboot) {
 		
 				List<Tag> instanceTagList = instance.getTags();
 		
@@ -154,6 +174,7 @@ public class AWSImageEntity extends AWSObjectEntity
 				createImageRequest.setInstanceId(instance.getInstanceId());
 				createImageRequest.setName(getTagValue(instanceTagList,this.env.getNameTag()) + "_" + amiFormattedCurrentDatetime);
 				createImageRequest.setDescription(getTagValue(instanceTagList,this.env.getNameTag()) + "_" + formattedCurrentDatetime);
+				createImageRequest.setNoReboot(noInstanceReboot);
 				
 				return ec2Client.createImage(createImageRequest);
 				
@@ -443,16 +464,20 @@ public class AWSImageEntity extends AWSObjectEntity
 		return imageList.get(0);
 	}
 	
-    public List<Image> getImagesForFilter(List<Filter> filters)
+    public List<Image> getImagesForFilter(List<Filter> filters,Collection<String> owners)
     {
         Validate.notNull(filters, "The filter given is null!", new Object[0]);
 
         DescribeImagesRequest request = new DescribeImagesRequest();
         request.setFilters(filters);
+        if (owners != null && owners.size() >0) {
+        	request.setOwners(owners);
+        }
 
         DescribeImagesResult result =  ec2Client.describeImages();
         return result.getImages();
     }
+
 	
 	public List<Snapshot> getSnapshotsForIds(List<String> snapshotIds) {
 		

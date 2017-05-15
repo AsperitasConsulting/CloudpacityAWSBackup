@@ -34,7 +34,6 @@ public class CPBackupEnv extends CPCommonEnv {
     public static final String ENV_VAR_MAX_RECURSIVE_CALLS = "MaxRecursiveCalls";
     public static final String ENV_VAR_MAX_RUN_MINUTES = "MaxRunMinutes";
     public static final String ENV_VAR_TIME_ZONE = "TimeZone";
-    public static final String ENV_VAR_BACKUP_STRATEGY_TAG = "BackupStrategyTag";
     public static final String ENV_VAR_FILTER1_TAG_NAME = "Filter1TagName";
     public static final String ENV_VAR_FILTER1_TAG_VALUE = "Filter1TagValue";
     public static final String ENV_VAR_FILTER2_TAG_NAME = "Filter2TagName";
@@ -44,6 +43,7 @@ public class CPBackupEnv extends CPCommonEnv {
     public static final String ENV_VAR_FILTER4_TAG_NAME = "Filter4TagName";
     public static final String ENV_VAR_FILTER4_TAG_VALUE = "Filter4TagValue";
     public static final String ENV_VAR_OVERRIDE_AVAILABLE_DAY_TAG = "AvailableDayTag";
+    public static final String ENV_VAR_OVERRIDE_BACKUP_STRATEGY_TAG = "BackupStrategyTag";    
     public static final String ENV_VAR_OVERRIDE_AVAILABLE_BEGIN_TIME_TAG = "AvailableBeginTimeTag";
     public static final String ENV_VAR_OVERRIDE_AVAILABLE_END_TIME_TAG = "AvailableEndTimeTag";
     public static final String ENV_VAR_OVERRIDE_INSTANCE_DEPENDENCY_TAG = "InstanceDepdenciesTag";
@@ -52,7 +52,7 @@ public class CPBackupEnv extends CPCommonEnv {
     public static final String ENV_VAR_OVERRIDE_DEVICE_TAG = "DeviceTag";
     public static final String ENV_VAR_OVERRIDE_IMAGE_ID_TAG = "ImageIdTag";
 //    public static final String ENV_VAR_OVERRIDE_ENABLE_BACKUP_TAG = "EnableBackupTag";
-    public static final String ENV_VAR_SHUTDOWN_FLAG_TAG = "ShutdownFlagTag";
+//    public static final String ENV_VAR_SHUTDOWN_FLAG_TAG = "ShutdownFlagTag";
     public static final String ENV_VAR_OVERRIDE_DB_RETENTION_DAYS = "DBRetentionDays";
     public static final String AVAILABLE_DAY_TAG_ALL_DAYS_CONST = "ALL";
     public static final String AVAILABLE_DAY_TAG_WEEKDAYS_CONST = "WEEKDAYS";
@@ -219,7 +219,7 @@ public class CPBackupEnv extends CPCommonEnv {
 
     public static String getBackupStrategyTag()
     {
-        String backupStrategy = System.getenv(ENV_VAR_BACKUP_STRATEGY_TAG);
+        String backupStrategy = System.getenv(ENV_VAR_OVERRIDE_BACKUP_STRATEGY_TAG);
         if(StringUtils.isEmpty(backupStrategy))
             return DEFAULT_BACKUP_STRATEGY_TAG;
         else

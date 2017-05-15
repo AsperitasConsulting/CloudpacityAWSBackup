@@ -200,7 +200,9 @@ public class EC2Backup
             String nameTag = AWSInstanceEntity.getTagValueFromList(this.backupEnv.getNameTag(), candidateInstance.getTags(),"");
            
             if(AWSInstanceEntity.BACKUP_STRATEGY_AMI_CONST.equalsIgnoreCase(backupStrategy) ||
-            		AWSInstanceEntity.BACKUP_STRATEGY_SNAPSHOT_RUNNING_CONST.equalsIgnoreCase(backupStrategy))
+               AWSInstanceEntity.BACKUP_STRATEGY_AMI_NO_REBOOT_CONST.equalsIgnoreCase(backupStrategy) ||
+               AWSInstanceEntity.BACKUP_STRATEGY_SNAPSHOT_CONST.equalsIgnoreCase(backupStrategy)||
+               AWSInstanceEntity.BACKUP_STRATEGY_SNAPSHOT_NO_REBOOT_CONST.equalsIgnoreCase(backupStrategy))
            //    BackupRequest.BACKUP_STRATEGY_SNAPSHOT_STOPPED_CONST.equalsIgnoreCase(backupStrategyTag) )
             {
                 instanceList.add(candidateInstance);
@@ -370,7 +372,7 @@ public class EC2Backup
         for(Instance instance:instanceList)   {
             String currentInstanceState = instance.getState().getName();
             if(AWSInstanceEntity.STOPPED_STATE.equalsIgnoreCase(currentInstanceState) ||
-               instanceEntity.snapshotRunningBackup(instance, CPBackupEnv.getBackupStrategyTag()))   {
+               instanceEntity.snapshotNoRebootBackup(instance, CPBackupEnv.getBackupStrategyTag()))   {
             	
                 List<Tag> tags = instance.getTags();
                 String instanceName = AWSInstanceEntity.getTagValueFromList(this.backupEnv.getNameTag(), tags, "");
