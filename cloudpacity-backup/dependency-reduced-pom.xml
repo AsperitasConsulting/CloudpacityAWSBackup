@@ -4,7 +4,7 @@
   <groupId>com.cloudpacity.aws.backup</groupId>
   <artifactId>cloudpacity-backup</artifactId>
   <name>cloudpacity-backup</name>
-  <version>0.12.10</version>
+  <version>0.12.11</version>
   <url>http://maven.apache.org</url>
   <build>
     <plugins>

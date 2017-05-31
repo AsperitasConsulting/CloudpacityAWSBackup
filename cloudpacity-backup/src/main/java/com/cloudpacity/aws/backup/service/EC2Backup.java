@@ -201,8 +201,7 @@ public class EC2Backup
            
             if(AWSInstanceEntity.BACKUP_STRATEGY_AMI_CONST.equalsIgnoreCase(backupStrategy) ||
                AWSInstanceEntity.BACKUP_STRATEGY_SNAPSHOT_STOPPED_CONST.equalsIgnoreCase(backupStrategy)||
-               AWSInstanceEntity.BACKUP_STRATEGY_SNAPSHOT_RUNNING_CONST.equalsIgnoreCase(backupStrategy))
-           //    BackupRequest.BACKUP_STRATEGY_SNAPSHOT_STOPPED_CONST.equalsIgnoreCase(backupStrategyTag) )
+               AWSInstanceEntity.BACKUP_STRATEGY_SNAPSHOT_RUNNING_CONST.equalsIgnoreCase(backupStrategy)) 
             {
                 instanceList.add(candidateInstance);
                 
