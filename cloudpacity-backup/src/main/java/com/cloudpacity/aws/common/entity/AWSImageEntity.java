@@ -115,8 +115,7 @@ public class AWSImageEntity extends AWSObjectEntity
 					logger.log("Error: Instance '" + instanceName + "' has not backup strategy tag '" + backupStrategyTag + "'");
 				}
 				// identify if a reboot is desired
-				else if (backupStrategy.equalsIgnoreCase(AWSInstanceEntity.BACKUP_STRATEGY_AMI_NO_REBOOT_CONST) ||
-						 backupStrategy.equalsIgnoreCase(AWSInstanceEntity.BACKUP_STRATEGY_SNAPSHOT_NO_REBOOT_CONST)) {
+				else if (backupStrategy.equalsIgnoreCase(AWSInstanceEntity.BACKUP_STRATEGY_SNAPSHOT_RUNNING_CONST)) {
 					noInstanceReboot = true;
 				}
 					

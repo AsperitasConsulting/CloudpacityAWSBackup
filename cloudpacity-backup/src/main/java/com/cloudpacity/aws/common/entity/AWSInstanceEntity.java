@@ -58,9 +58,8 @@ public class AWSInstanceEntity extends AWSObjectEntity
     public static final String SHUTTING_DOWN_STATE = "shutting-down";
     public static final String TERMINATED_STATE = "terminated";
     public static final String BACKUP_STRATEGY_AMI_CONST = "AMI";
-    public static final String BACKUP_STRATEGY_AMI_NO_REBOOT_CONST = "AMINoReboot";    
-    public static final String BACKUP_STRATEGY_SNAPSHOT_CONST = "Snapshot";
-    public static final String BACKUP_STRATEGY_SNAPSHOT_NO_REBOOT_CONST = "SnapshotNoReboot";
+    public static final String BACKUP_STRATEGY_SNAPSHOT_RUNNING_CONST = "SnaptshotRunning";
+    public static final String BACKUP_STRATEGY_SNAPSHOT_STOPPED_CONST = "SnaptshotStopped";
     
     protected AmazonEC2 ec2Client;
     
@@ -363,8 +362,7 @@ public class AWSInstanceEntity extends AWSObjectEntity
         if(StringUtils.isEmpty(backupStrategy)) {
             return false;
         }
-        else if (BACKUP_STRATEGY_AMI_CONST.equalsIgnoreCase(backupStrategy) ||
-        		BACKUP_STRATEGY_AMI_NO_REBOOT_CONST.equalsIgnoreCase(backupStrategy)) {
+        else if (BACKUP_STRATEGY_AMI_CONST.equalsIgnoreCase(backupStrategy)) {
             return true;
         }
         return false;
@@ -378,7 +376,7 @@ public class AWSInstanceEntity extends AWSObjectEntity
         if(StringUtils.isEmpty(backupStrategy)) {
             return false;
         }
-        else if (BACKUP_STRATEGY_SNAPSHOT_NO_REBOOT_CONST.equalsIgnoreCase(backupStrategy)) {
+        else if (BACKUP_STRATEGY_SNAPSHOT_RUNNING_CONST.equalsIgnoreCase(backupStrategy)) {
             return true;
         }
         return false;

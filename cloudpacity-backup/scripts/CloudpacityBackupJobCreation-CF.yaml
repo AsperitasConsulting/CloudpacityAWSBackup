@@ -28,7 +28,7 @@ Parameters:
   BackupRoleName:
     Type: String
     Description: The name IAM role for the backup Lambda functions
-    Default: 'CP_EC2Backup_Role'  
+    Default: 'CP.EC2Backup.Role'  
     
   BackupFilterTagName:
     Type: String

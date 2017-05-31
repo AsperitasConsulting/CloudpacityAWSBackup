@@ -1,0 +1,29 @@
+QuickStart Installation
+
+1.	Upload the project jar file into an AWS S3 bucket of your choosing.  It can be found in the project root directory (cloudpacity-backup-<version>.jar): https://github.com/AsperitasConsulting/CloudpacityAWSBackup/tree/master/cloudpacity-backup
+
+2.	Download the AWS CloudFormation script in the scripts directory: https://github.com/AsperitasConsulting/CloudpacityAWSBackup/blob/master/cloudpacity-backup/scripts/CloudpacityBackupServiceCreation-CF.yaml
+
+3.	Run AWS CloudFormation script CloudpacityBackupServiceCreation-CF.yaml and enter the following parameters:
+    BackupFilterTagName – the name of the tag that will be used as a filter for the instances to be backed up 
+	
+    BackupFilterTagValue – the value of the tag that will be used as a filter for the instances to be backed up 
+	
+    BackupLambdaFunctionName – The name you give the Lambda function for the Backup job
+	
+    BackupRoleName – the name of the role that will be created for the Backup Lambda function
+	
+    BackupTriggerLambdaFunctionName – The name you give to the Lambda function that will be recursively called if the Backup Lambda function goes beyond the 5 minute limit.
+	
+    InstanceTagsToInclude – A common delimited list of instance tags that should be applied to the AMI and/or Snapshots.  Note: Timestamp and instance id tags will be added by default and the name of the AMI/Snapshot will be a concatenation of the instance name plus the timestamp.  Snapshots get the device placed at the end of their name to provide uniqueness.
+
+    NotificationEmail – the email to be notified when the job completes
+
+    S3CodeBucket – the bucket where the Backup jar is located
+
+    S3CodeKey – the filename of the jar in the bucket  e.g. cloudpacity-backup-<version>.jar
+    
+	Schedule – the schedule on which the Backup job should be run.  Format rate(x minutes), rate(x hours), rate(x days), cron(<mins> <hours> <day of month> <month> <day of week> <year>) e.g. cron(0 12 ? * SUN-SAT *) represents everyday at noon
+
+
+

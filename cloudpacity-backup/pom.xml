@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.cloudpacity.aws.backup</groupId>
   <artifactId>cloudpacity-backup</artifactId>
-  <version>0.12.9</version>
+  <version>0.12.10</version>
   <packaging>jar</packaging>
 
   <name>cloudpacity-backup</name>
