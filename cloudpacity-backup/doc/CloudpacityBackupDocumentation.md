@@ -91,8 +91,10 @@ noon
 
 ## Architecture
 ============
-Inline-style: 
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+
+**Backup Architecture**
+
+![Backup Architecture](https://raw.githubusercontent.com/AsperitasConsulting/CloudpacityAWSBackup/master/cloudpacity-backup/doc/CloudpacityBackupDiagrams.png?token=AZWkngTcCic2LnPnrqSBNH6mNBbRJ9boks5ZXQ2FwA%3D%3D )
 
 
 ## EC2 Instance Tags Required
