@@ -28,7 +28,6 @@ import com.cloudpacity.aws.common.CPCommonEnv;
 public class CPBackupEnv extends CPCommonEnv {
 	
 
-    public static final String ENV_VAR_SNS_ARN = "SnsArn";
     public static final String DYNAMODB_INSERT_EVENT = "INSERT";
     public static final String ENV_VAR_ACTION_PAUSE_SECS = "PauseSecs";
     public static final String ENV_VAR_MAX_RECURSIVE_CALLS = "MaxRecursiveCalls";
@@ -61,14 +60,7 @@ public class CPBackupEnv extends CPCommonEnv {
 
 
     
-    public static String getSNSARN()
-    {
-        String snsARN =  System.getenv(ENV_VAR_SNS_ARN);
-        if(StringUtils.isEmpty(snsARN))
-            return "";
-        else
-            return snsARN;
-    }
+
 
     public static int getActionPauseSec()
     {

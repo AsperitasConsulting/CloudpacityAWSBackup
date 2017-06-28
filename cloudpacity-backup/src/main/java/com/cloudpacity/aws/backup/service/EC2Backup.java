@@ -64,7 +64,6 @@ public class EC2Backup
 
     public String invoke(BackupRequest backupRequest)
     {
-    	String returnMessage = "OK";
     	
    		try {
 	    	validateBackupRequest(backupRequest);
@@ -114,16 +113,16 @@ public class EC2Backup
 	        checkTimeout(backupRequest.getRequestStartTime(), backupRequest.getIteration().intValue(), backupRequest);
 	        Thread.sleep(backupRequest.getActionPauseSec().intValue() * 1000);
 	        writeToDyanmoTrigger(backupRequest);
-	        return returnMessage;
+	        return RETURN_CODE_RECURSIVE;
         
 		}
 		
 	   	catch (Throwable e){
-	   		logger.log("Exception in EC2Service.backup!");
+	   		logger.log("Exception in EC2Backup.invoke!");
 	   		logger.log(logger.getDebugMessages());
 	   		logger.log(e.getMessage());
 	   		logger.log(ExceptionUtils.getStackTrace(e));
-	   		return e.getMessage();
+	   		return RETURN_CODE_ERROR;
 	   } 
     }
 

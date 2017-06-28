@@ -7,7 +7,6 @@ import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.services.sns.model.PublishResult;
-import com.cloudpacity.aws.backup.CPBackupEnv;
 import com.cloudpacity.aws.common.CPCommonEnv;
 import com.cloudpacity.aws.common.util.CPLogger;
 
@@ -38,10 +37,10 @@ public class AWSSNSEntity  extends AWSObjectEntity {
     {
         super(logger,env);
         Validate.notNull(awsCredentials, "The AWS credentials supplied were null!", new Object[0]);
-        Validate.notEmpty(CPBackupEnv.getRegionName(), "The AWS region name provided is empty!", new Object[0]);
+        Validate.notEmpty(CPCommonEnv.getRegionName(), "The AWS region name provided is empty!", new Object[0]);
         this.logger = logger;
         snsClient = AmazonSNSClientBuilder.standard()
-				.withRegion(CPBackupEnv.getRegionName())
+				.withRegion(CPCommonEnv.getRegionName())
 				.build();
     }
     
@@ -49,9 +48,9 @@ public class AWSSNSEntity  extends AWSObjectEntity {
 	public static PublishResult postMessage(String message) {
 		
 		AmazonSNS snsClient = AmazonSNSClientBuilder.standard()
-													.withRegion(CPBackupEnv.getRegionName())
+													.withRegion(CPCommonEnv.getRegionName())
 													.build();
-		PublishRequest publishRequest = new PublishRequest(CPBackupEnv.getSNSARN(), message);
+		PublishRequest publishRequest = new PublishRequest(CPCommonEnv.getSNSARN(), message);
 		return snsClient.publish(publishRequest);		
 	}
 }

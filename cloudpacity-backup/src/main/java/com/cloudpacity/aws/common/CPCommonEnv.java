@@ -29,7 +29,7 @@ import com.amazonaws.regions.Regions;
  */
 public class CPCommonEnv {
 
-	
+
     public static final int DEFAULT_ACTION_PAUSE_SECS = 30;
     public static final int DEFAULT_MAX_RECURSIVE_CALLS = 40;
     public static final int DEFAULT_MAX_RUN_MINUTES = 20;
@@ -47,11 +47,22 @@ public class CPCommonEnv {
     public static final String DEFAULT_IMAGE_ID_TAG = "ImageId";
     public static final String DEFAULT_BACKUP_STRATEGY_TAG = "BackupStrategy";
     
+    public static final String ENV_VAR_SNS_ARN = "SnsArn";
     public static final String ENV_VAR_OVERRIDE_NAME_TAG = "NameTag";
     public static final String DEFAULT_NAME_TAG = "Name";
     public static final String DEFAULT_RETAIN_DAYS_TAG = "BackupRetentionDays";
     public static final String ENV_VAR_RETAIN_DAYS_TAG = "BackupRetentionDaysTag";
 	
+    
+    public static String getSNSARN()
+    {
+        String snsARN =  System.getenv(ENV_VAR_SNS_ARN);
+        if(StringUtils.isEmpty(snsARN))
+            return "";
+        else
+            return snsARN;
+    }
+    
     public String getBackupRetentionDaysTag()
     {
         String retainDaysTag = System.getenv(ENV_VAR_RETAIN_DAYS_TAG);

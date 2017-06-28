@@ -473,7 +473,7 @@ public class AWSImageEntity extends AWSObjectEntity
         	request.setOwners(owners);
         }
 
-        DescribeImagesResult result =  ec2Client.describeImages();
+        DescribeImagesResult result =  ec2Client.describeImages(request);
         return result.getImages();
     }
 

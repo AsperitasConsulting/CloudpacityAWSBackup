@@ -68,6 +68,7 @@ public class EC2BackupLambda  implements RequestHandler<BackupRequest, String> {
 	        EC2Backup ec2Backup = new EC2Backup(logger, awsCredentials);
 	        String returnCode = ec2Backup.invoke(backupRequest);
 	        
+	        // if complete, send message to SNS
 	        if (EC2Backup.RETURN_CODE_COMPLETE.equalsIgnoreCase(returnCode)) {
 	        	AWSSNSEntity.postMessage(logger.getCompoundMessages());
 	        }
